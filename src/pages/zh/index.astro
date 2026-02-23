@@ -1,0 +1,30 @@
+﻿---
+import { getCollection, getEntry, render } from "astro:content";
+import MainLayout from "../../layouts/MainLayout.astro";
+import PageSection from "../../components/PageSection.astro";
+import ResearchHighlights from "../../components/ResearchHighlights.astro";
+import { stripBase } from "../../lib/path";
+
+const entry = await getEntry("pages", "zh/home");
+if (!entry) {
+  throw new Error("Missing content entry: pages/zh/home.md");
+}
+const researchItems = await getCollection("research");
+const { Content } = await render(entry);
+const currentPath = stripBase(Astro.url.pathname, import.meta.env.BASE_URL);
+---
+
+<MainLayout
+  lang="zh"
+  currentPath={currentPath}
+  pageTitle="\u4e3b\u9875 | \u5f20\u5b50\u5c27"
+  pageDescription="\u5f20\u5b50\u5c27\u5b66\u672f\u4e3b\u9875"
+>
+  <PageSection title={entry.data.title}>
+    <Content />
+  </PageSection>
+  <PageSection title="\u6211\u7684\u7814\u7a76">
+    <ResearchHighlights items={researchItems} lang="zh" />
+  </PageSection>
+</MainLayout>
+

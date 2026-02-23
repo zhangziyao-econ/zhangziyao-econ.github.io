@@ -1,0 +1,23 @@
+﻿---
+import { getCollection } from "astro:content";
+import MainLayout from "../../layouts/MainLayout.astro";
+import PageSection from "../../components/PageSection.astro";
+import PublicationList from "../../components/PublicationList.astro";
+import { stripBase } from "../../lib/path";
+
+const items = await getCollection("publications");
+const currentPath = stripBase(Astro.url.pathname, import.meta.env.BASE_URL);
+---
+
+<MainLayout
+  lang="zh"
+  currentPath={currentPath}
+  pageTitle="\u5b66\u672f\u53d1\u8868 | \u5f20\u5b50\u5c27"
+  pageDescription="\u4e2d\u6587\u53d1\u8868\u5728\u524d\uff0c\u82f1\u6587\u53d1\u8868\u5728\u540e"
+>
+  <PageSection title="\u5b66\u672f\u53d1\u8868">
+    <PublicationList items={items} uiLang="zh" />
+  </PageSection>
+</MainLayout>
+
+

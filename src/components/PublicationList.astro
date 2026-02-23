@@ -1,0 +1,259 @@
+﻿---
+import type { CollectionEntry } from "astro:content";
+import type { SiteLang } from "../lib/site";
+
+type Props = {
+  items: CollectionEntry<"publications">[];
+  uiLang: SiteLang;
+};
+
+const { items, uiLang } = Astro.props;
+
+const rawPublicationFiles = import.meta.glob("/src/content/publications/**/*.md", {
+  eager: true,
+  query: "?raw",
+  import: "default"
+}) as Record<string, string>;
+
+const extractFrontmatterAbstract = (raw: string) => {
+  if (!raw.startsWith("---")) return "";
+  const fmEnd = raw.indexOf("\n---", 3);
+  if (fmEnd < 0) return "";
+  const fm = raw.slice(3, fmEnd + 1);
+
+  const quotedDouble = fm.match(/^[ \t]*abstract:[ \t]*"([\s\S]*?)"[ \t]*$/m);
+  if (quotedDouble?.[1]) return quotedDouble[1].trim();
+
+  const quotedSingle = fm.match(/^[ \t]*abstract:[ \t]*'([\s\S]*?)'[ \t]*$/m);
+  if (quotedSingle?.[1]) return quotedSingle[1].trim();
+
+  const plain = fm.match(/^[ \t]*abstract:[ \t]*(.+)$/m);
+  return plain?.[1]?.trim() ?? "";
+};
+
+const rawAbstractById = new Map<string, string>();
+Object.entries(rawPublicationFiles).forEach(([path, raw]) => {
+  const id = path.replace(/^\/src\/content\/publications\//, "");
+  rawAbstractById.set(id, extractFrontmatterAbstract(raw));
+});
+
+const resolveAbstract = (item: CollectionEntry<"publications">) => {
+  const fromData = item.data.abstract?.trim() ?? "";
+  if (fromData.length > 0) return fromData;
+  return rawAbstractById.get(item.id)?.trim() ?? "";
+};
+
+const sortByYearDesc = (a: CollectionEntry<"publications">, b: CollectionEntry<"publications">) =>
+  b.data.year - a.data.year;
+
+const zhItems = items.filter((item) => item.data.lang === "zh").sort(sortByYearDesc);
+const enItems = items.filter((item) => item.data.lang === "en").sort(sortByYearDesc);
+const useChinesePunctuation = uiLang === "zh";
+
+const labels =
+  uiLang === "zh"
+    ? {
+        zh: "\u4e2d\u6587\u53d1\u8868",
+        en: "\u82f1\u6587\u53d1\u8868",
+        pdf: "PDF",
+        doi: "DOI",
+        code: "Code & Data",
+        cnki: "\u77e5\u7f51",
+        abstract: "\u6458\u8981",
+        noAbstract: "\u6682\u65e0\u6458\u8981"
+      }
+    : {
+        zh: "Peer-reviewed Publications (in Chinese)",
+        en: "Peer-reviewed Publications",
+        pdf: "PDF",
+        doi: "DOI",
+        code: "Code",
+        cnki: "CNKI",
+        abstract: "Abstract",
+        noAbstract: "No abstract available."
+      };
+
+const sectionOrder: Array<"zh" | "en"> = uiLang === "en" ? ["en", "zh"] : ["zh", "en"];
+const publicationSections = sectionOrder.map((lang) => ({
+  lang,
+  title: labels[lang],
+  items: lang === "zh" ? zhItems : enItems
+}));
+
+const getCnkiUrl = (title: string, explicit?: string) =>
+  explicit ?? `https://kns.cnki.net/kns8s/defaultresult/index?kw=${encodeURIComponent(title)}`;
+
+const hasAbstract = (text?: string) => Boolean(text?.trim());
+const abstractLength = (text?: string) => text?.trim().length ?? 0;
+
+const debugLabels =
+  uiLang === "zh"
+    ? {
+        detected: "abstract",
+        yes: "\u5df2\u68c0\u6d4b",
+        no: "\u672a\u68c0\u6d4b",
+        len: "\u957f\u5ea6"
+      }
+    : {
+        detected: "abstract",
+        yes: "detected",
+        no: "missing",
+        len: "len"
+      };
+
+const getAbstractId = (item: CollectionEntry<"publications">) =>
+  `pub-abstract-${`${item.id}-${item.data.lang}-${item.data.year}-${item.data.title}`.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+---
+
+<div class="pub-groups">
+  {
+    publicationSections.map((section) => (
+      <section>
+        <h2>{section.title}</h2>
+        <ul class="pub-list">
+          {
+            section.items.map((item) => {
+              const resolvedAbstract = resolveAbstract(item);
+              return (
+                <li class="pub-item">
+                  <p class="pub-title">{item.data.title}</p>
+                  <p class="pub-meta">
+                    {section.lang === "zh" && useChinesePunctuation ? (
+                      <>
+                        {item.data.authors.join("\u3001")}
+                        {"\uFF0C"}
+                        {item.data.year}
+                        {"\uFF0C"}
+                        <strong>{item.data.journal}</strong> {item.data.issue}
+                      </>
+                    ) : (
+                      <>
+                        {item.data.authors.join(", ")}. <strong>{item.data.journal}</strong>, {item.data.issue},{" "}
+                        {item.data.year}.
+                      </>
+                    )}
+                  </p>
+                  <div class="pub-actions">
+                    <div class="pub-links">
+                      <button
+                        class="pub-abstract-btn"
+                        type="button"
+                        aria-expanded="false"
+                        aria-controls={getAbstractId(item)}
+                      >
+                        {labels.abstract}
+                      </button>
+                      <span
+                        class="pub-abstract-debug"
+                        data-has-abstract={hasAbstract(resolvedAbstract) ? "1" : "0"}
+                        data-entry-id={item.id}
+                        data-server-len={abstractLength(item.data.abstract)}
+                        data-fallback-len={abstractLength(resolvedAbstract)}
+                        hidden
+                      >
+                        {debugLabels.detected}: {hasAbstract(resolvedAbstract) ? debugLabels.yes : debugLabels.no} |{" "}
+                        {debugLabels.len}: {abstractLength(resolvedAbstract)}
+                      </span>
+                      {item.data.links.pdf && <a href={item.data.links.pdf}>{labels.pdf}</a>}
+                      {item.data.links.doi && <a href={item.data.links.doi}>{labels.doi}</a>}
+                      {item.data.links.code && <a href={item.data.links.code}>{labels.code}</a>}
+                      <a href={getCnkiUrl(item.data.title, item.data.links.cnki)} target="_blank" rel="noreferrer">
+                        {labels.cnki}
+                      </a>
+                    </div>
+                    <span class="pub-abstract-source" hidden>{resolvedAbstract}</span>
+                    <p
+                      id={getAbstractId(item)}
+                      class="pub-abstract-text"
+                      data-empty-label={labels.noAbstract}
+                      hidden
+                    />
+                  </div>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </section>
+    ))
+  }
+</div>
+
+<script is:inline>
+  const CONTROLLER_KEY = "__pubAbstractController";
+  const anyWindow = window;
+  if (anyWindow[CONTROLLER_KEY] instanceof AbortController) {
+    anyWindow[CONTROLLER_KEY].abort();
+  }
+  const controller = new AbortController();
+  anyWindow[CONTROLLER_KEY] = controller;
+
+  const collapseAllPanels = () => {
+    document.querySelectorAll(".pub-abstract-btn").forEach((btn) => {
+      if (btn instanceof HTMLButtonElement) {
+        btn.setAttribute("aria-expanded", "false");
+      }
+    });
+    document.querySelectorAll(".pub-abstract-text").forEach((panel) => {
+      if (panel instanceof HTMLElement) {
+        panel.hidden = true;
+      }
+    });
+  };
+
+  const fillPanelText = (panel, source) => {
+    if (!(panel instanceof HTMLElement)) return;
+    const abstractText = source instanceof HTMLElement ? source.textContent?.trim() ?? "" : "";
+    const emptyLabel = panel.dataset.emptyLabel ?? "";
+    panel.textContent = abstractText.length > 0 ? abstractText : emptyLabel;
+  };
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const button = target.closest(".pub-abstract-btn");
+      if (!(button instanceof HTMLButtonElement)) return;
+
+      event.preventDefault();
+
+      const item = button.closest(".pub-item");
+      if (!(item instanceof HTMLElement)) return;
+      const panel = item.querySelector(".pub-abstract-text");
+      const source = item.querySelector(".pub-abstract-source");
+      if (!(panel instanceof HTMLElement)) return;
+
+      const willExpand = button.getAttribute("aria-expanded") !== "true";
+      collapseAllPanels();
+
+      if (willExpand) {
+        fillPanelText(panel, source);
+        button.setAttribute("aria-expanded", "true");
+        panel.hidden = false;
+      }
+    },
+    { signal: controller.signal }
+  );
+
+  const debugParam = new URLSearchParams(window.location.search).get("debug");
+  const debugOn = debugParam === "1" || debugParam === "true";
+  document.querySelectorAll(".pub-item").forEach((item) => {
+    if (!(item instanceof HTMLElement)) return;
+    const debugBadge = item.querySelector(".pub-abstract-debug");
+    const source = item.querySelector(".pub-abstract-source");
+    if (!(debugBadge instanceof HTMLElement)) return;
+
+    const sourceLen = source instanceof HTMLElement ? source.textContent?.trim().length ?? 0 : 0;
+    const baseText = (debugBadge.textContent ?? "")
+      .replace(/\s*\|\s*serverLen:\s*\d+\s*\|\s*fallbackLen:\s*\d+\s*\|\s*clientLen:\s*\d+\s*\|\s*id:\s*.+$/, "")
+      .replace(/\s*\|\s*clientLen:\s*\d+\s*$/, "")
+      .trim();
+    const entryId = debugBadge.dataset.entryId ?? "";
+    const serverLen = Number(debugBadge.dataset.serverLen ?? "0");
+    const fallbackLen = Number(debugBadge.dataset.fallbackLen ?? "0");
+    debugBadge.textContent = `${baseText} | serverLen: ${serverLen} | fallbackLen: ${fallbackLen} | clientLen: ${sourceLen} | id: ${entryId}`;
+    debugBadge.hidden = !debugOn;
+  });
+</script>
+

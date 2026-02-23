@@ -1,0 +1,63 @@
+﻿---
+import { getNav, getProfile, type SiteLang } from "../lib/site";
+import { withBase } from "../lib/path";
+
+type Props = {
+  lang: SiteLang;
+  currentPath: string;
+};
+
+const { lang, currentPath } = Astro.props;
+const profile = getProfile(lang);
+const navItems = getNav(lang);
+const writingItem = navItems.find((item) => item.key === "writing");
+const sidebarItems = [...navItems.filter((item) => item.key !== "writing"), ...(writingItem ? [writingItem] : [])];
+
+const isActive = (href: string) => {
+  if (href === "/") {
+    return currentPath === "/";
+  }
+  return currentPath === href || currentPath.startsWith(`${href}/`);
+};
+---
+
+<section class="profile-card">
+  <img class="profile-avatar" src={withBase("/assets/avatar.jpg", import.meta.env.BASE_URL)} alt={profile.name} />
+  <h1 class="profile-name">{profile.name}</h1>
+  <p class="profile-title">{profile.title}</p>
+  <p class="profile-affiliation">{profile.affiliation}</p>
+  <p class="profile-location">{profile.location}</p>
+  <a class="profile-email" href={`mailto:${profile.email}`}>{profile.email}</a>
+
+  {
+    profile.links.length > 0 && (
+      <ul class="profile-links">
+        {
+          profile.links.map((link) => (
+            <li>
+              <a
+                href={withBase(link.href, import.meta.env.BASE_URL)}
+                target={link.href.startsWith("http") ? "_blank" : undefined}
+                rel={link.href.startsWith("http") ? "noreferrer" : undefined}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    )
+  }
+
+  <nav class="sidebar-nav" aria-label={lang === "zh" ? "\u7f51\u7ad9\u5bfc\u822a" : "Site navigation"}>
+    {
+      sidebarItems.map((item) => (
+        <a href={withBase(item.href, import.meta.env.BASE_URL)} class:list={["sidebar-nav-link", { active: isActive(item.href) }]}>
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+</section>
+
+

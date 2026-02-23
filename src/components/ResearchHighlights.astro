@@ -1,0 +1,32 @@
+---
+import type { CollectionEntry } from "astro:content";
+import type { SiteLang } from "../lib/site";
+
+type Props = {
+  items: CollectionEntry<"research">[];
+  lang: SiteLang;
+};
+
+const { items, lang } = Astro.props;
+
+const sorted = items
+  .filter((item) => item.data.lang === lang)
+  .sort((a, b) => {
+    if (typeof a.data.order === "number" || typeof b.data.order === "number") {
+      return (a.data.order ?? 9999) - (b.data.order ?? 9999);
+    }
+    return a.id.localeCompare(b.id);
+  });
+---
+
+<div class="research-grid">
+  {
+    sorted.map((item) => (
+      <article class="research-card">
+        <img src={item.data.image} alt={item.data.imageAlt ?? item.data.title} loading="lazy" />
+        <p class="research-summary">{item.data.summary}</p>
+        <p class="research-citation">{item.data.citation}</p>
+      </article>
+    ))
+  }
+</div>

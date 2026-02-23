@@ -1,0 +1,46 @@
+---
+import type { CollectionEntry } from "astro:content";
+import type { SiteLang } from "../lib/site";
+
+type Props = {
+  items: CollectionEntry<"writing">[];
+  lang: SiteLang;
+};
+
+const { items, lang } = Astro.props;
+
+const labels =
+  lang === "zh"
+    ? { post: "\u6587\u7ae0", pdf: "PDF", empty: "\u6682\u65e0\u5199\u4f5c\u6761\u76ee\u3002" }
+    : { post: "Post", pdf: "PDF", empty: "No writing entries yet." };
+
+const sorted = items
+  .filter((item) => item.data.lang === lang)
+  .sort((a, b) => {
+    if (typeof a.data.order === "number" || typeof b.data.order === "number") {
+      return (a.data.order ?? 9999) - (b.data.order ?? 9999);
+    }
+    return b.data.date.localeCompare(a.data.date);
+  });
+---
+
+{
+  sorted.length === 0 ? (
+    <p>{labels.empty}</p>
+  ) : (
+    <ul class="writing-list">
+      {sorted.map((item) => (
+        <li class="writing-item">
+          <p class="writing-title">{item.data.title}</p>
+          <p class="writing-meta">{item.data.date}</p>
+          {item.data.summary && <p class="writing-summary">{item.data.summary}</p>}
+          <div class="pub-links">
+            {item.data.links.post && <a href={item.data.links.post}>{labels.post}</a>}
+            {item.data.links.pdf && <a href={item.data.links.pdf}>{labels.pdf}</a>}
+          </div>
+        </li>
+      ))}
+    </ul>
+  )
+}
+

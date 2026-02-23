@@ -1,0 +1,19 @@
+---
+type Props = {
+  title: string;
+  subtitle?: string;
+};
+
+const { title, subtitle } = Astro.props;
+---
+
+<section class="page-section">
+  <header class="section-header">
+    <h1>{title}</h1>
+    {subtitle && <p>{subtitle}</p>}
+  </header>
+  <div class="section-body">
+    <slot />
+  </div>
+</section>
+
