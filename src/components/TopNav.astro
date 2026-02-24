@@ -1,4 +1,4 @@
-﻿---
+---
 import { getNav, type SiteLang } from "../lib/site";
 import { withBase } from "../lib/path";
 
@@ -17,7 +17,9 @@ const isActive = (href: string) => {
   return currentPath === href || currentPath.startsWith(`${href}/`);
 };
 
-const switchPath = lang === "zh" ? currentPath.replace(/^\/zh/, "") || "/" : `/zh${currentPath === "/" ? "" : currentPath}`;
+const normalizedPath = currentPath || "/";
+const localizedPath = normalizedPath.replace(/^\/en(?=\/|$)/, "") || "/";
+const switchPath = lang === "zh" ? (localizedPath === "/" ? "/en" : `/en${localizedPath}`) : localizedPath;
 ---
 
 <header class="top-nav-wrap">
@@ -32,5 +34,3 @@ const switchPath = lang === "zh" ? currentPath.replace(/^\/zh/, "") || "/" : `/z
   </nav>
   <a href={withBase(switchPath, import.meta.env.BASE_URL)} class="lang-switch">{lang === "zh" ? "EN" : "\u4e2d\u6587"}</a>
 </header>
-
-

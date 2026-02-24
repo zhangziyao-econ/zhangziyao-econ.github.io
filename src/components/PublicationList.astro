@@ -67,7 +67,7 @@ const labels =
         en: "Peer-reviewed Publications",
         pdf: "PDF",
         doi: "DOI",
-        code: "Code",
+        code: "Code & Data",
         cnki: "CNKI",
         abstract: "Abstract",
         noAbstract: "No abstract available."
@@ -79,9 +79,6 @@ const publicationSections = sectionOrder.map((lang) => ({
   title: labels[lang],
   items: lang === "zh" ? zhItems : enItems
 }));
-
-const getCnkiUrl = (title: string, explicit?: string) =>
-  explicit ?? `https://kns.cnki.net/kns8s/defaultresult/index?kw=${encodeURIComponent(title)}`;
 
 const hasAbstract = (text?: string) => Boolean(text?.trim());
 const abstractLength = (text?: string) => text?.trim().length ?? 0;
@@ -155,11 +152,13 @@ const getAbstractId = (item: CollectionEntry<"publications">) =>
                         {debugLabels.len}: {abstractLength(resolvedAbstract)}
                       </span>
                       {item.data.links.pdf && <a href={item.data.links.pdf}>{labels.pdf}</a>}
+                      {item.data.links.cnki && (
+                        <a href={item.data.links.cnki} target="_blank" rel="noreferrer">
+                          {labels.cnki}
+                        </a>
+                      )}
                       {item.data.links.doi && <a href={item.data.links.doi}>{labels.doi}</a>}
                       {item.data.links.code && <a href={item.data.links.code}>{labels.code}</a>}
-                      <a href={getCnkiUrl(item.data.title, item.data.links.cnki)} target="_blank" rel="noreferrer">
-                        {labels.cnki}
-                      </a>
                     </div>
                     <span class="pub-abstract-source" hidden>{resolvedAbstract}</span>
                     <p

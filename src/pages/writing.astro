@@ -1,4 +1,4 @@
-﻿---
+---
 import { getCollection } from "astro:content";
 import MainLayout from "../layouts/MainLayout.astro";
 import PageSection from "../components/PageSection.astro";
@@ -10,14 +10,12 @@ const currentPath = stripBase(Astro.url.pathname, import.meta.env.BASE_URL);
 ---
 
 <MainLayout
-  lang="en"
+  lang="zh"
   currentPath={currentPath}
-  pageTitle="Writing | Ziyao Zhang"
-  pageDescription="Research notes and essays"
+  pageTitle="\u5199\u4f5c | \u5f20\u5b50\u5c27"
+  pageDescription="\u7814\u7a76\u7b14\u8bb0\u4e0e\u968f\u7b14"
 >
-  <PageSection title="Writing">
-    <WritingList items={items} lang="en" />
+  <PageSection title="\u5199\u4f5c">
+    <WritingList items={items} lang="zh" />
   </PageSection>
 </MainLayout>
-
-

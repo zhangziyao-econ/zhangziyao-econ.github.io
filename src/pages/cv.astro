@@ -1,26 +1,24 @@
-﻿---
+---
 import { getEntry, render } from "astro:content";
 import MainLayout from "../layouts/MainLayout.astro";
 import PageSection from "../components/PageSection.astro";
 import { stripBase } from "../lib/path";
 
-const entry = await getEntry("pages", "en/cv");
+const entry = await getEntry("pages", "zh/cv");
 if (!entry) {
-  throw new Error("Missing content entry: pages/en/cv.md");
+  throw new Error("Missing content entry: pages/zh/cv.md");
 }
 const { Content } = await render(entry);
 const currentPath = stripBase(Astro.url.pathname, import.meta.env.BASE_URL);
 ---
 
 <MainLayout
-  lang="en"
+  lang="zh"
   currentPath={currentPath}
-  pageTitle="CV | Ziyao Zhang"
-  pageDescription="Curriculum Vitae"
+  pageTitle="\u7b80\u5386 | \u5f20\u5b50\u5c27"
+  pageDescription="\u5f20\u5b50\u5c27\u7b80\u5386"
 >
   <PageSection title={entry.data.title}>
     <Content />
   </PageSection>
 </MainLayout>
-
-

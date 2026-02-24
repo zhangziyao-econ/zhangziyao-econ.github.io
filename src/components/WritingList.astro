@@ -11,8 +11,8 @@ const { items, lang } = Astro.props;
 
 const labels =
   lang === "zh"
-    ? { post: "\u6587\u7ae0", pdf: "PDF", empty: "\u6682\u65e0\u5199\u4f5c\u6761\u76ee\u3002" }
-    : { post: "Post", pdf: "PDF", empty: "No writing entries yet." };
+    ? { code: "Code & Data", pdf: "PDF", empty: "\u6682\u65e0\u5199\u4f5c\u6761\u76ee\u3002" }
+    : { code: "Code & Data", pdf: "PDF", empty: "No writing entries yet." };
 
 const sorted = items
   .filter((item) => item.data.lang === lang)
@@ -35,7 +35,7 @@ const sorted = items
           <p class="writing-meta">{item.data.date}</p>
           {item.data.summary && <p class="writing-summary">{item.data.summary}</p>}
           <div class="pub-links">
-            {item.data.links.post && <a href={item.data.links.post}>{labels.post}</a>}
+            {item.data.links.code && <a href={item.data.links.code}>{labels.code}</a>}
             {item.data.links.pdf && <a href={item.data.links.pdf}>{labels.pdf}</a>}
           </div>
         </li>

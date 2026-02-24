@@ -42,7 +42,7 @@ const writing = defineCollection({
     type: z.enum(["note", "essay", "column"]),
     links: z
       .object({
-        post: z.string().optional(),
+        code: z.string().optional(),
         pdf: z.string().optional()
       })
       .default({}),

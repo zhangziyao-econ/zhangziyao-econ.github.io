@@ -25,11 +25,11 @@ const navLabels: Record<SiteLang, Record<NavItem["key"], string>> = {
     workingPapers: "Working Papers"
   },
   zh: {
-    home: "主页",
-    cv: "简历",
-    publications: "学术发表",
-    writing: "写作",
-    workingPapers: "工作论文"
+    home: "\u4e3b\u9875",
+    cv: "\u7b80\u5386",
+    publications: "\u5b66\u672f\u53d1\u8868",
+    writing: "\u5199\u4f5c",
+    workingPapers: "\u5de5\u4f5c\u8bba\u6587"
   }
 };
 
@@ -39,24 +39,25 @@ const profiles: Record<SiteLang, ProfileContent> = {
     title: "Professor (tenure-track)",
     affiliation: "School of Public Finance and Taxation, Zhongnan University of Economics and Law",
     location: "Wuhan, Hubei, China",
-    email: "zhangziyao_econ@163.com",  href: "zhangziyao_econ@163.com",
+    email: "zhangziyao_econ@163.com",
     links: [{ label: "Affiliation Web", href: "https://csxy.zuel.edu.cn/2022/0826/c7501a304283/page.htm" }]
   },
   zh: {
-    name: "张子尧",
-    title: "教授（准聘）",
-    affiliation: "中南财经政法大学财政税务学院",
-    location: "湖北武汉",
-    email: "zhangziyao_econ@163.com", href: "zhangziyao_econ@163.com",
-    links: [{ label: "学校主页", href: "https://csxy.zuel.edu.cn/2022/0826/c7501a304283/page.htm" }]
+    name: "\u5f20\u5b50\u5c27",
+    title: "\u6559\u6388\uff08\u51c6\u8058\uff09",
+    affiliation: "\u4e2d\u5357\u8d22\u7ecf\u653f\u6cd5\u5927\u5b66\u8d22\u653f\u7a0e\u52a1\u5b66\u9662",
+    location: "\u6e56\u5317\u6b66\u6c49",
+    email: "zhangziyao_econ@163.com",
+    links: [{ label: "\u5b66\u6821\u4e3b\u9875", href: "https://csxy.zuel.edu.cn/2022/0826/c7501a304283/page.htm" }]
   }
 };
 
 export function getNav(lang: SiteLang): NavItem[] {
-  const prefix = lang === "zh" ? "/zh" : "";
+  const prefix = lang === "en" ? "/en" : "";
+  const homeHref = lang === "en" ? "/en" : "/";
 
   return [
-    { key: "home", label: navLabels[lang].home, href: `${prefix}/` },
+    { key: "home", label: navLabels[lang].home, href: homeHref },
     { key: "cv", label: navLabels[lang].cv, href: `${prefix}/cv` },
     { key: "publications", label: navLabels[lang].publications, href: `${prefix}/publications` },
     { key: "writing", label: navLabels[lang].writing, href: `${prefix}/writing` },
