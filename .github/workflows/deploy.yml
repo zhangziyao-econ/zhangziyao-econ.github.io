@@ -30,6 +30,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - name: Set last updated date
+        run: echo "SITE_LAST_UPDATED=$(TZ=Asia/Shanghai date +%Y-%m)" >> $GITHUB_ENV
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

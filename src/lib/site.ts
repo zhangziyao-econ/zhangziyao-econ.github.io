@@ -1,5 +1,21 @@
 export type SiteLang = "en" | "zh";
-export const SITE_LAST_UPDATED = "2026-02-23";
+
+function formatShanghaiDate(date: Date): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit"
+  }).formatToParts(date);
+
+  const year = parts.find((part) => part.type === "year")?.value ?? "";
+  const month = parts.find((part) => part.type === "month")?.value ?? "";
+
+  return `${year}-${month}`;
+}
+
+const fromEnv = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env
+  ?.SITE_LAST_UPDATED;
+export const SITE_LAST_UPDATED = fromEnv ?? formatShanghaiDate(new Date());
 
 export type NavItem = {
   key: "home" | "cv" | "publications" | "writing" | "workingPapers";
