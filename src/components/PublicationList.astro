@@ -121,11 +121,11 @@ const getAbstractId = (item: CollectionEntry<"publications">) =>
                         {"\uFF0C"}
                         {item.data.year}
                         {"\uFF0C"}
-                        <strong>{item.data.journal}</strong> {item.data.issue}
+                        <em>{item.data.journal}</em> {item.data.issue}
                       </>
                     ) : (
                       <>
-                        {item.data.authors.join(", ")}. <strong>{item.data.journal}</strong>, {item.data.issue},{" "}
+                        {item.data.authors.join(", ")}. <em>{item.data.journal}</em>, {item.data.issue},{" "}
                         {item.data.year}.
                       </>
                     )}
