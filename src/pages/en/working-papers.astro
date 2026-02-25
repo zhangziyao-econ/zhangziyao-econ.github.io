@@ -1,14 +1,15 @@
 ---
-import { getEntry, render } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 import MainLayout from "../../layouts/MainLayout.astro";
 import PageSection from "../../components/PageSection.astro";
+import WorkingPaperList from "../../components/WorkingPaperList.astro";
 import { stripBase } from "../../lib/path";
 
-const entry = await getEntry("pages", "en/working-papers");
-if (!entry) {
+const pageEntry = await getEntry("pages", "en/working-papers");
+if (!pageEntry) {
   throw new Error("Missing content entry: pages/en/working-papers.md");
 }
-const { Content } = await render(entry);
+const items = await getCollection("workingPapers");
 const currentPath = stripBase(Astro.url.pathname, import.meta.env.BASE_URL);
 ---
 
@@ -18,7 +19,7 @@ const currentPath = stripBase(Astro.url.pathname, import.meta.env.BASE_URL);
   pageTitle="Working Papers | Ziyao Zhang"
   pageDescription="Ongoing projects and drafts"
 >
-  <PageSection title={entry.data.title}>
-    <Content />
+  <PageSection title={pageEntry.data.title}>
+    <WorkingPaperList items={items} uiLang="en" />
   </PageSection>
 </MainLayout>

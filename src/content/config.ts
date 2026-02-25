@@ -50,6 +50,26 @@ const writing = defineCollection({
   })
 });
 
+const workingPapers = defineCollection({
+  type: "content",
+  schema: z.object({
+    title: z.string(),
+    authors: z.array(z.string()),
+    year: z.number().int(),
+    status: z.string(),
+    abstract: z.string().optional(),
+    lang: z.enum(["en", "zh"]),
+    links: z
+      .object({
+        pdf: z.string().optional(),
+        doi: z.string().optional(),
+        code: z.string().optional()
+      })
+      .default({}),
+    order: z.number().int().optional()
+  })
+});
+
 const research = defineCollection({
   type: "content",
   schema: z.object({
@@ -67,5 +87,6 @@ export const collections = {
   pages,
   publications,
   writing,
+  workingPapers,
   research
 };

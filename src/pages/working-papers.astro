@@ -1,14 +1,15 @@
 ---
-import { getEntry, render } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 import MainLayout from "../layouts/MainLayout.astro";
 import PageSection from "../components/PageSection.astro";
+import WorkingPaperList from "../components/WorkingPaperList.astro";
 import { stripBase } from "../lib/path";
 
-const entry = await getEntry("pages", "zh/working-papers");
-if (!entry) {
+const pageEntry = await getEntry("pages", "zh/working-papers");
+if (!pageEntry) {
   throw new Error("Missing content entry: pages/zh/working-papers.md");
 }
-const { Content } = await render(entry);
+const items = await getCollection("workingPapers");
 const currentPath = stripBase(Astro.url.pathname, import.meta.env.BASE_URL);
 ---
 
@@ -18,7 +19,7 @@ const currentPath = stripBase(Astro.url.pathname, import.meta.env.BASE_URL);
   pageTitle="\u5de5\u4f5c\u8bba\u6587 | \u5f20\u5b50\u5c27"
   pageDescription="\u5728\u7814\u9879\u76ee\u4e0e\u8bba\u6587\u521d\u7a3f"
 >
-  <PageSection title={entry.data.title}>
-    <Content />
+  <PageSection title={pageEntry.data.title}>
+    <WorkingPaperList items={items} uiLang="zh" />
   </PageSection>
 </MainLayout>

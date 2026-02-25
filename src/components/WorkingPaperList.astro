@@ -1,0 +1,144 @@
+---
+import type { CollectionEntry } from "astro:content";
+import type { SiteLang } from "../lib/site";
+
+type Props = {
+  items: CollectionEntry<"workingPapers">[];
+  uiLang: SiteLang;
+};
+
+const { items, uiLang } = Astro.props;
+
+const labels =
+  uiLang === "zh"
+    ? {
+        abstract: "摘要",
+        noAbstract: "暂无摘要",
+        empty: "暂无公开工作论文，后续将更新最新草稿与在投论文。"
+      }
+    : {
+        abstract: "Abstract",
+        noAbstract: "No abstract available.",
+        empty: "No public working papers at the moment. Drafts and submissions will be updated here."
+      };
+
+const sorted = items
+  .filter((item) => item.data.lang === uiLang)
+  .sort((a, b) => {
+    const aOrder = typeof a.data.order === "number" ? a.data.order : 9999;
+    const bOrder = typeof b.data.order === "number" ? b.data.order : 9999;
+    if (aOrder !== bOrder) return aOrder - bOrder;
+    return b.data.year - a.data.year;
+  });
+
+const formatAuthors = (authors: string[]) => (uiLang === "zh" ? authors.join("、") : authors.join(", "));
+const getAbstractId = (item: CollectionEntry<"workingPapers">, index: number) =>
+  `wp-abstract-${`${item.id}-${index}`.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+---
+
+<div class="working-paper-list">
+  {
+    sorted.length === 0 ? (
+      <p>{labels.empty}</p>
+    ) : (
+      <ul class="pub-list">
+        {sorted.map((item, index) => {
+          const abstract = item.data.abstract?.trim() ?? "";
+          const abstractId = getAbstractId(item, index);
+          return (
+            <li class="pub-item">
+              <p class="pub-title">{item.data.title}</p>
+              <p class="pub-meta">
+                {uiLang === "zh" ? (
+                  <>
+                    {formatAuthors(item.data.authors)}
+                    {"，"}
+                    {item.data.year}
+                    {"，"}
+                    {item.data.status}
+                  </>
+                ) : (
+                  <>
+                    {formatAuthors(item.data.authors)}. {item.data.year}. {item.data.status}.
+                  </>
+                )}
+              </p>
+              <div class="pub-actions">
+                <div class="pub-links">
+                  <button
+                    class="pub-abstract-btn wp-abstract-btn"
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls={abstractId}
+                  >
+                    {labels.abstract}
+                  </button>
+                </div>
+                <span class="pub-abstract-source" hidden>{abstract}</span>
+                <p id={abstractId} class="pub-abstract-text wp-abstract-text" data-empty-label={labels.noAbstract} hidden />
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    )
+  }
+</div>
+
+<script is:inline>
+  const CONTROLLER_KEY = "__workingPaperAbstractController";
+  const anyWindow = window;
+  if (anyWindow[CONTROLLER_KEY] instanceof AbortController) {
+    anyWindow[CONTROLLER_KEY].abort();
+  }
+  const controller = new AbortController();
+  anyWindow[CONTROLLER_KEY] = controller;
+
+  const collapseAllPanels = () => {
+    document.querySelectorAll(".wp-abstract-btn").forEach((btn) => {
+      if (btn instanceof HTMLButtonElement) {
+        btn.setAttribute("aria-expanded", "false");
+      }
+    });
+    document.querySelectorAll(".wp-abstract-text").forEach((panel) => {
+      if (panel instanceof HTMLElement) {
+        panel.hidden = true;
+      }
+    });
+  };
+
+  const fillPanelText = (panel, source) => {
+    if (!(panel instanceof HTMLElement)) return;
+    const abstractText = source instanceof HTMLElement ? source.textContent?.trim() ?? "" : "";
+    const emptyLabel = panel.dataset.emptyLabel ?? "";
+    panel.textContent = abstractText.length > 0 ? abstractText : emptyLabel;
+  };
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const button = target.closest(".wp-abstract-btn");
+      if (!(button instanceof HTMLButtonElement)) return;
+
+      event.preventDefault();
+
+      const item = button.closest(".pub-item");
+      if (!(item instanceof HTMLElement)) return;
+      const panel = item.querySelector(".wp-abstract-text");
+      const source = item.querySelector(".pub-abstract-source");
+      if (!(panel instanceof HTMLElement)) return;
+
+      const willExpand = button.getAttribute("aria-expanded") !== "true";
+      collapseAllPanels();
+
+      if (willExpand) {
+        fillPanelText(panel, source);
+        button.setAttribute("aria-expanded", "true");
+        panel.hidden = false;
+      }
+    },
+    { signal: controller.signal }
+  );
+</script>
