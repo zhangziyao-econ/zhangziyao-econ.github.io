@@ -73,7 +73,7 @@ const labels =
         noAbstract: "No abstract available."
       };
 
-const sectionOrder: Array<"zh" | "en"> = uiLang === "en" ? ["en", "zh"] : ["zh", "en"];
+const sectionOrder: Array<"zh" | "en"> = uiLang === "en" ? ["en"] : ["zh", "en"];
 const publicationSections = sectionOrder.map((lang) => ({
   lang,
   title: labels[lang],

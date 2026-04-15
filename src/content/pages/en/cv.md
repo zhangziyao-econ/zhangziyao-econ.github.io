@@ -3,7 +3,6 @@ title: Curriculum Vitae
 lang: en
 updatedAt: "2026-02-23"
 ---
-
 ## Education
 
 - 2018-2022: Ph.D., School of Finance, Renmin University of China
@@ -12,9 +11,9 @@ updatedAt: "2026-02-23"
 
 ## Appointments
 
-- 2026.01-present: Professor (tenure-track)
-- 2024.12-2025.12: Associate Professor, School of Public Finance and Taxation, Zhongnan University of Economics and Law
-- 2022.07-2024.12: Associate Professor (tenure-track), School of Public Finance and Taxation, Zhongnan University of Economics and Law
+- 2026.03-present: Professor (tenure-track)
+- 2025.08-2026.02: Associate Professor, School of Public Finance and Taxation, Zhongnan University of Economics and Law
+- 2022.07-2025.07: Associate Professor (tenure-track), School of Public Finance and Taxation, Zhongnan University of Economics and Law
 
 ## Principal Grants
 
