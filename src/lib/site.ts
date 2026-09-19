@@ -70,7 +70,7 @@ const profiles: Record<SiteLang, ProfileContent> = {
 
 export function getNav(lang: SiteLang): NavItem[] {
   const prefix = lang === "en" ? "/en" : "";
-  const homeHref = lang === "en" ? "/en" : "/";
+  const homeHref = lang === "en" ? "/en#site-shell" : "/#site-shell";
 
   return [
     { key: "home", label: navLabels[lang].home, href: homeHref },
@@ -83,4 +83,28 @@ export function getNav(lang: SiteLang): NavItem[] {
 
 export function getProfile(lang: SiteLang): ProfileContent {
   return profiles[lang];
+}
+
+const bannerTexts: Record<SiteLang, string> = {
+  zh: "凡事求个明白，算是本性难改",
+  en: "Veritas"
+};
+
+export function getBannerText(lang: SiteLang): string {
+  return bannerTexts[lang];
+}
+
+type UiLabels = {
+  scrollDown: string;
+  scrollTop: string;
+  themeToggle: string;
+};
+
+const uiLabels: Record<SiteLang, UiLabels> = {
+  zh: { scrollDown: "向下滚动", scrollTop: "回到顶部", themeToggle: "切换深色模式" },
+  en: { scrollDown: "Scroll down", scrollTop: "Back to top", themeToggle: "Toggle dark mode" }
+};
+
+export function getUiLabels(lang: SiteLang): UiLabels {
+  return uiLabels[lang];
 }

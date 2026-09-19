@@ -1,6 +1,8 @@
 ---
 import "../styles/global.css";
 import SidebarProfile from "../components/SidebarProfile.astro";
+import ScrollTop from "../components/ScrollTop.astro";
+import ThemeToggle from "../components/ThemeToggle.astro";
 import { SITE_LAST_UPDATED, type SiteLang } from "../lib/site";
 import { withBase } from "../lib/path";
 
@@ -16,6 +18,7 @@ const normalizedPath = currentPath || "/";
 const localizedPath = normalizedPath.replace(/^\/en(?=\/|$)/, "") || "/";
 const zhPath = localizedPath;
 const enPath = localizedPath === "/" ? "/en" : `/en${localizedPath}`;
+const hasBanner = Astro.slots.has("banner");
 ---
 
 <!doctype html>
@@ -25,17 +28,36 @@ const enPath = localizedPath === "/" ? "/en" : `/en${localizedPath}`;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{pageTitle}</title>
     <meta name="description" content={pageDescription ?? "Academic personal website"} />
+    <link rel="icon" type="image/svg+xml" href={withBase("/favicon.svg", import.meta.env.BASE_URL)} />
+    <meta name="theme-color" content="#1d1b19" />
+    <script is:inline>
+      (function () {
+        var stored = null;
+        try {
+          stored = localStorage.getItem("theme");
+        } catch (e) {}
+        var theme = stored || "dark";
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.classList.add("js");
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) {
+          meta.setAttribute("content", theme === "dark" ? "#1d1b19" : "#f5f4ef");
+        }
+      })();
+    </script>
   </head>
   <body>
-    <div class="page-topbar">
+    <div class:list={["page-topbar", { "page-topbar--overlay": hasBanner }]}>
+      <ThemeToggle lang={lang} />
       <div class="lang-switch-group">
         <a href={withBase(zhPath, import.meta.env.BASE_URL)} class:list={["lang-switch", { active: lang === "zh" }]}>
-          {"\u4e2d\u6587"}
+          {"中文"}
         </a>
         <a href={withBase(enPath, import.meta.env.BASE_URL)} class:list={["lang-switch", { active: lang === "en" }]}>EN</a>
       </div>
     </div>
-    <div class="site-shell">
+    {hasBanner && <slot name="banner" />}
+    <div class="site-shell" id="site-shell">
       <aside class="site-sidebar">
         <SidebarProfile lang={lang} currentPath={currentPath} />
       </aside>
@@ -46,7 +68,31 @@ const enPath = localizedPath === "/" ? "/en" : `/en${localizedPath}`;
       </main>
     </div>
     <footer class="site-footer">
-      <p>{lang === "zh" ? `\u66f4\u65b0\u65f6\u95f4\uff1a${SITE_LAST_UPDATED}` : `Last updated: ${SITE_LAST_UPDATED}`}</p>
+      <p>{lang === "zh" ? `更新时间：${SITE_LAST_UPDATED}` : `Last updated: ${SITE_LAST_UPDATED}`}</p>
     </footer>
+    <ScrollTop lang={lang} />
+    <script is:inline>
+      (function () {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        if (!("IntersectionObserver" in window)) return;
+        var targets = document.querySelectorAll(".research-card, .pub-item, .writing-item");
+        if (targets.length === 0) return;
+        var io = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("revealed");
+                io.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.08, rootMargin: "0px 0px -8% 0px" }
+        );
+        targets.forEach(function (el, i) {
+          el.style.setProperty("--reveal-delay", (i % 4) * 60 + "ms");
+          io.observe(el);
+        });
+      })();
+    </script>
   </body>
 </html>

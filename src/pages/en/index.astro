@@ -3,6 +3,7 @@ import { getCollection, getEntry, render } from "astro:content";
 import MainLayout from "../../layouts/MainLayout.astro";
 import PageSection from "../../components/PageSection.astro";
 import ResearchHighlights from "../../components/ResearchHighlights.astro";
+import HeroBanner from "../../components/HeroBanner.astro";
 import { stripBase } from "../../lib/path";
 
 const entry = await getEntry("pages", "en/home");
@@ -20,6 +21,7 @@ const currentPath = stripBase(Astro.url.pathname, import.meta.env.BASE_URL);
   pageTitle="Home | Ziyao Zhang"
   pageDescription="Academic homepage of Ziyao Zhang"
 >
+  <HeroBanner slot="banner" lang="en" />
   <PageSection title={entry.data.title}>
     <Content />
   </PageSection>

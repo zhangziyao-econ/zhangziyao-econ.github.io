@@ -1,0 +1,49 @@
+---
+import { getBannerText, getUiLabels, type SiteLang } from "../lib/site";
+
+type Props = {
+  lang: SiteLang;
+};
+
+const { lang } = Astro.props;
+const text = getBannerText(lang);
+const labels = getUiLabels(lang);
+---
+
+<section class="hero-banner">
+  <div class="hero-banner-inner">
+    <p class="hero-banner-line">
+      <span class="hero-typed" data-text={text}>{text}</span><span class="hero-caret" aria-hidden="true"></span>
+    </p>
+  </div>
+  <a class="hero-scroll" href="#site-shell" aria-label={labels.scrollDown}>
+    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </a>
+</section>
+
+<script>
+  const typed = document.querySelector<HTMLElement>(".hero-typed");
+  if (typed) {
+    const text = typed.dataset.text ?? "";
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!reduced && text.length > 0) {
+      const TYPE_MS = 110;
+      const START_DELAY_MS = 650;
+      window.setTimeout(() => {
+        let index = 0;
+        typed.textContent = "";
+        const tick = () => {
+          index += 1;
+          typed.textContent = text.slice(0, index);
+          if (index < text.length) {
+            window.setTimeout(tick, TYPE_MS);
+          }
+        };
+        tick();
+      }, START_DELAY_MS);
+    }
+  }
+</script>

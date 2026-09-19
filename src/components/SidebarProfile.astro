@@ -14,10 +14,11 @@ const writingItem = navItems.find((item) => item.key === "writing");
 const sidebarItems = [...navItems.filter((item) => item.key !== "writing"), ...(writingItem ? [writingItem] : [])];
 
 const isActive = (href: string) => {
-  if (href === "/") {
+  const path = href.split("#")[0];
+  if (path === "/") {
     return currentPath === "/";
   }
-  return currentPath === href || currentPath.startsWith(`${href}/`);
+  return currentPath === path || currentPath.startsWith(`${path}/`);
 };
 ---
 
