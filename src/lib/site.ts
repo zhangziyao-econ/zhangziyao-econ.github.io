@@ -86,7 +86,7 @@ export function getProfile(lang: SiteLang): ProfileContent {
 }
 
 const bannerTexts: Record<SiteLang, string> = {
-  zh: "凡事求个明白，算是本性难改",
+  zh: "钱塘江上潮信来，今日方知我是我",
   en: "Veritas"
 };
 
