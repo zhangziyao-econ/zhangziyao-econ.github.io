@@ -43,8 +43,13 @@ const resolveAbstract = (item: CollectionEntry<"publications">) => {
   return rawAbstractById.get(item.id)?.trim() ?? "";
 };
 
+const parseIssueNumber = (issue: string) => {
+  const match = issue.match(/第\s*(\d+)\s*期/);
+  return match ? Number(match[1]) : 0;
+};
+
 const sortByYearDesc = (a: CollectionEntry<"publications">, b: CollectionEntry<"publications">) =>
-  b.data.year - a.data.year;
+  b.data.year - a.data.year || parseIssueNumber(b.data.issue) - parseIssueNumber(a.data.issue);
 
 const zhItems = items.filter((item) => item.data.lang === "zh").sort(sortByYearDesc);
 const enItems = items.filter((item) => item.data.lang === "en").sort(sortByYearDesc);
